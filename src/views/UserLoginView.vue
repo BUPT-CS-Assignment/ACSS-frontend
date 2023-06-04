@@ -29,7 +29,7 @@ export default{
     data(){},
     methods:{
         login(){
-            axios.post('api/login', {
+            axios.post('/api/login', {
                 username: this.$refs.username.value,
                 password: this.$refs.password.value,
                 auth:0
@@ -38,7 +38,7 @@ export default{
                 console.log(res.data)
                 if(res.data.status == 0){
                     localStorage.setItem('username', this.$refs.username.value);
-                    this.$router.push('/user')
+                    this.$router.push('/user/dashboard')
                 }else{
                     alert('登录失败');
                 }

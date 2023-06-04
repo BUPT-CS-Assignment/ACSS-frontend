@@ -4,18 +4,28 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/login',
-      name: 'Login',
-      component: () => import('../views/LoginView.vue')
+      path: '/user/login',
+      name: 'UserLogin',
+      component: () => import('../views/UserLoginView.vue')
     },
     {
-      path: '/user',
-      name: 'User',
+      path: '/user/dashboard',
+      name: 'UserDashboard',
       component: () => import('../views/UserView.vue')
     },
     {
+      path: '/admin/login',
+      name: 'AdminLogin',
+      component: () => import('../views/AdminLoginView.vue')
+    },
+    {
+      path: '/admin/dashboard',
+      name: 'AdminDashboard',
+      component: () => import('../views/AdminView.vue')
+    },
+    {
       path: '/:catchAll(.*)',
-      redirect: '/login'
+      redirect: '/user/dashboard'
     }
   ]
 })
