@@ -2,11 +2,12 @@
 <v-container class="fill-height d-flex flex-column">
     <v-card class="rounded-lg w-75 bg-grey-lighten-3">
         <v-card-title class="d-flex flex-row mt-2">
-            <p class="text-h4 font-weight-black">ACSS USER</p>
-            <p class="ml-auto text-overline font-weight-bold">{{time.hour}}:{{time.minute}}:{{time.second}}</p>
+            <p class="text-h4 font-weight-black">HELLO, {{user}}</p>
+            <p class="ml-auto text-overline font-weight-bold">{{time.year}}/{{time.month}}/{{time.day}} {{time.hour}}:{{time.minute}}</p>
         </v-card-title>
-        <v-card-text>
-            <p class="text-subtitle-1 text-grey-darken-1 font-weight-bold">{{ user }}</p>
+        <v-card-text class="d-flex flex-row">
+            <p class="text-subtitle-1 text-grey-darken-1 font-weight-bold">ACSS</p>
+            <v-btn class="ml-auto" variant="text" density="compact" color="black" icon="mdi-exit-to-app" @click="quit"/>
         </v-card-text>
     </v-card>
 
@@ -24,7 +25,9 @@
     <template v-if="current.length == 0">
         <v-card class="rounded-lg w-75">
             <v-card-title class="d-flex flex-row">
-                <p class="text-h6 font-weight-bold">NO TASK</p>
+                <v-chip label class="mx-2">
+                    <p class="text-overline font-weight-bold">NO TASK</p>
+                </v-chip>
             </v-card-title>
         </v-card>
         <v-spacer class="my-3"></v-spacer>
@@ -32,7 +35,10 @@
     <template v-else v-for="info in current">
     <v-card class="rounded-lg w-75">
         <v-card-title class="d-flex flex-row">
-            <p class="text-h6 font-weight-bold">TASK: {{ info.car_id }}</p>
+            <v-chip label class="mx-2">
+                <p class="text-overline font-weight-bold">TASK</p>
+            </v-chip>
+            <p class="text-h6 font-weight-bold ml-2">{{ info.car_id }}</p>
             <v-btn class="ml-auto" color="red" 
                     density="compact" @click="">
                 <p class="font-weight-bold">CANCEL</p>
@@ -44,34 +50,64 @@
         
         <v-card-text v-if="info.valid">
             <v-row class="mt-3">
-                <v-col cols="3">
-                    <v-btn size="x-large" class="w-100 rounded-lg" color="orange-lighten-1"
+                <v-col cols="5">
+                    <v-btn size="x-large" class="w-100 rounded-lg" color="orange-darken-2"
+                        :disabled="info.status != -1"
                         @click="alter_mode(info)">
-                        <p class="text-button font-weight-bold">CHANGE</p>
+                        <p class="text-button font-weight-bold">CHANGE MODE</p>
                     </v-btn>
                 </v-col>
-                <v-col cols="3" class="d-flex flex-column">
-                    <v-card variant="outlined" elevation="0" color="grey-darken-1">
-                        <v-card-title class="text-overline font-weight-bold">{{ info.mode ? 'FAST' : 'NORMAL' }}</v-card-title>
-                    </v-card>
-                </v-col>
 
-                <v-col cols="3">
+                <v-col cols="4">
                     <v-btn size="x-large" class="w-100 rounded-lg" color="blue-lighten-1"
+                        :disabled="info.status == 1 || info.status == 2"
                         @click="alter_amount(info)">
                         <p class="text-button font-weight-bold">RESET</p>
                     </v-btn>
                 </v-col>
                 <v-col cols="3">
-                    <v-text-field v-model="info.input_amount" variant="solo" label="Amount" type="number"></v-text-field>
+                    <v-text-field v-model="info.input_amount" 
+                        variant="solo" label="Amount" type="number" 
+                        :disabled="info.status == 1 || info.status == 2"/>
                 </v-col>
             </v-row>
             <v-divider ></v-divider>
             <v-list>
-                <v-list-item>STATUS: {{ info.status }}</v-list-item>
-                <v-list-item>MODE: {{ info.mode }}</v-list-item>
-                <v-list-item>QUEUE: {{ info.queue }}</v-list-item>
-                <v-list-item>PILE: {{ info.pile }}</v-list-item>
+                <v-list-item>
+                    <div class="d-flex flex-row mr-16">
+                        <p class="text-h6 font-weight-bold">STATUS</p>
+                        <p class="text-h6 font-weight-bold ml-6" :class="status_color[String(info.status)]">{{ status_str[String(info.status)] }}</p>
+                    </div>
+                </v-list-item>
+                <v-list-item>
+                    <div class="d-flex flex-row mr-16">
+                        <p class="text-h6 font-weight-bold">MODE</p>
+                        <p class="text-h6 font-weight-bold ml-6" :class="mode_color[String(info.mode)]">{{ mode_str[String(info.mode)] }}</p>
+                        <p class="text-h6 font-weight-bold ml-auto">PILE</p>
+                        <p class="text-h6 font-weight-bold text-grey ml-6">{{ info.pile != "" ? info.pile :'N/A' }}</p>
+                    </div>
+                </v-list-item>
+                <v-list-item>
+                    <div class="d-flex flex-row mr-16">
+                        <p class="text-h6 font-weight-bold">REQUEST</p>
+                        <p class="text-h6 font-weight-bold text-grey ml-6">{{ info.request_amount }}</p>
+                        <p class="text-h6 font-weight-bold ml-auto">CHARGED</p>
+                        <p class="text-h6 font-weight-bold text-grey ml-6">{{ info.charged_amount }}</p>
+                    </div>
+                </v-list-item>
+                <v-list-item>
+                    <div class="d-flex flex-row mr-16">
+                        <p class="text-h6 font-weight-bold">START</p>
+                        <p class="text-h6 font-weight-bold text-grey ml-6">{{ info.start_time != "" ? info.start_time : 'N/A' }}</p>
+                    </div>
+                </v-list-item>
+                <v-list-item>
+                    <div class="d-flex flex-row mr-16">
+                        <p class="text-h6 font-weight-bold ">REMAIN</p>
+                        <p class="text-h6 font-weight-bold text-grey ml-6">{{ info.remain }} </p>
+                        <p class="text-button font-weight-bold text-grey ml-1">{{ info.remain == "N/A" ? "" : "H"}}</p>
+                    </div>
+                </v-list-item>
             </v-list>
         </v-card-text>
     </v-card>
@@ -132,7 +168,7 @@
                     <v-text-field v-model="input_car_id" variant="solo" label="CAR ID"></v-text-field>
                 </v-col>
                 <v-col cols="6">
-                    <v-text-field v-model="input_amount" variant="solo" label="AMOUNT"></v-text-field>
+                    <v-text-field v-model="input_amount" variant="solo" label="AMOUNT" type="number"></v-text-field>
                 </v-col>
                 <v-col cols="6">
                     <v-radio-group v-model="dialog_input_mode" inline>
@@ -164,7 +200,38 @@ import { ref, reactive, getCurrentInstance, onMounted }  from 'vue'
 
 const user = localStorage.getItem('username');
 if (user == null) { router.push('/login'); }
+const quit = () => {
+    localStorage.removeItem('username');
+    for(var i in current.value){
+        clearInterval(current.value[i].timer);
+    }
+    clearInterval(sys_timer);
+    router.push('/login');
+}
 
+const status_str = {
+    '-1': 'PENDING',
+    '0': 'WAITING',
+    '1': 'CHARGING',
+    '2': 'FINISTHED'
+}
+
+const status_color = {
+    '-1': 'text-grey',
+    '0': 'text-orange',
+    '1': 'text-green',
+    '2': 'text-blue'
+}
+
+const mode_str= {
+    '0':'NORMAL',
+    '1':'FAST'
+}
+
+const mode_color={
+    '0':'text-red',
+    '1':'text-green'
+}
 
 const current = ref([]);
 const history = ref([]);
@@ -172,11 +239,45 @@ const dialog = ref(false);
 const dialog_input_mode = ref(0);
 const input_car_id = ref('');
 const input_amount = ref(0);
-const time = ref({
+const time = reactive({
+    year: '0000',
+    month: '00',
+    day: '00',
     hour: '00',
     minute: '00',
-    second: '00',
 });
+
+var basetime = 0;
+var sys_timer = null;
+const time_sync = () => {
+    console.log('sync system time');
+    axios.get('api/time')
+    .then(res => {
+        console.log(res.data)
+        basetime = res.data.data.stamp;
+        update_time(basetime);
+        var ratio = res.data.data.ratio;
+        sys_timer = setInterval(() => {
+            update_time(basetime + 60)
+        }, 60 * 1000 / ratio);
+    }).catch(err => {
+        console.log(err);
+    })
+}
+const update_time = (stamp) => {
+    basetime = stamp;
+    var date = new Date(stamp * 1000);
+    time.year = date.getFullYear();
+    var m = date.getMonth() + 1;
+    time.month = m < 10 ? '0' + m : m;
+    var d = date.getDate();
+    time.day = d < 10 ? '0' + d : d;
+    var h = date.getHours();
+    time.hour = h < 10 ? '0' + h : h;
+    var mi = date.getMinutes();
+    time.minute = mi < 10 ? '0' + mi : mi;
+}
+time_sync();
 
 const charge_request = () => {
     console.log('charging request');
@@ -202,6 +303,10 @@ const charge_request = () => {
             })
             current.value.push(task);
             query_detail(task)
+            var timer = setInterval(() => {
+                query_detail(task);
+            }, 5 * 1000);
+            task.timer = timer;
             dialog.value = false;
         }else{
             alert('请求失败: ' + res.data.message);
@@ -234,15 +339,15 @@ const alter_mode = (bill) => {
 
 const alter_amount = (bill) => {
     console.log('alter amount');
-    const res = axios.post('api/user/alter/amout', {
+    const res = axios.post('api/user/alter/amount', {
         user_id: user,
         car_id: bill.car_id,
         amount: bill.input_amount
     }).then(res => {
         console.log(res.data)
         if(res.data.status == 0){
-            alert('修改成功');
             bill.amount = bill.input_amount;
+            query_detail(bill);
         }else{
             alert('请求失败: ' + res.data.message);
         }
@@ -251,7 +356,6 @@ const alter_amount = (bill) => {
         alert('请求失败: 网络错误');
     })
 }
-
 
 const query_bill = (bill)=>{
     console.log('query bill');
@@ -322,19 +426,16 @@ const query_request = ()=>{
         if(res.data.status == 0){
             current.value = [];
             res.data.data.forEach(element => {
-                console.log(element)
                 var new_info = reactive({
                     valid: false,
                     car_id: element,
-                    pile: 0,
-                    queue: 0,
-                    mode: 0,
-                    status: 0,
-                    remain: 0,
-                    input_amount: 0,
                 })
                 current.value.push(new_info)
                 query_detail(new_info);
+                var timer = setInterval(() => {
+                    query_detail(new_info);
+                }, 5 * 1000);
+                new_info.timer = timer;
             });
         }else{
             console.log('请求失败: ' + res.data.message);
@@ -354,12 +455,19 @@ const query_detail = (info) => {
     }).then(res => {
         console.log(res.data)
         if(res.data.status == 0){
-            info.valid = true;
             info.pile = res.data.data.pile_id;
             info.queue = 0;
-            info.remain = res.data.data.remain;
+            if(res.data.data.remain == -1){
+                info.remain = 'N/A';
+            }else{
+                info.remain = Number(res.data.data.remain / 3600).toFixed(1);
+            }
             info.mode = res.data.data.mode;
             info.status = res.data.data.status;
+            info.request_amount = res.data.data.request_amount;
+            info.start_time = res.data.data.start_time;
+            info.charged_amount = Number(res.data.data.charged_amount).toFixed(2);
+            info.valid = true;
         }else{
             console.log('请求失败: ' + res.data.message);
         }
