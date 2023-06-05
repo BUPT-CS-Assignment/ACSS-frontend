@@ -38,7 +38,8 @@
             </v-chip>
             <p class="text-subtitle-1 font-weight-bold ml-2">{{ info.car_id }}</p>
             <p class="text-overline font-weight-bold ml-6" :class="status_color[String(info.status)]">{{ status_str[String(info.status)] }}</p>
-            
+            <p v-if="info.queuing > 0 && info.status != -2 && info.status != 2" class="text-overline font-weight-bold ml-2" :class="status_color[String(info.status)]">{{ info.queuing }}</p>
+
             <v-btn v-if="info.status != -2 && info.status != 2" class="ml-auto" color="grey" variant="text"
                     density="compact" icon="mdi-refresh"
                     @click="query_detail(info)"/>
@@ -475,6 +476,7 @@ const query_detail = (info) => {
             }
             info.mode = res.data.data.mode;
             info.status = res.data.data.status;
+            info.queuing = res.data.data.queuing;
             info.request_amount = res.data.data.request_amount;
             info.start_time = res.data.data.start_time;
             info.charged_amount = Number(res.data.data.charged_amount).toFixed(2);

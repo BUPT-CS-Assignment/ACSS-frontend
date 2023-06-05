@@ -42,10 +42,10 @@
                 <p class="text-overline font-weight-bold">{{ pile.time }}H</p>
                 <p class="text-overline font-weight-bold">{{ pile.amount }}kWh</p>
                 <template v-if="pile.status == 2">
-                    <v-btn variant="text" icon="mdi-refresh-circle" color="blue" class="mt-2" @click=""/>
+                    <v-btn variant="text" icon="mdi-refresh-circle" color="blue" class="mt-2" @click="alter_pile_state(pile.id,1)"/>
                 </template>
                 <template v-else>
-                    <v-btn variant="text" icon="mdi-close-circle" color="red-lighten-1" class="mt-2" @click=""/>
+                    <v-btn variant="text" icon="mdi-close-circle" color="red-lighten-1" class="mt-2" @click="alter_pile_state(pile.id,0)"/>
                 </template>
             </v-card-text>
         </v-card>
@@ -140,6 +140,25 @@ const mode_color={
 }
 
 const wait_list = reactive([])
+
+const alter_pile_state = (pile_id, status) => {
+    console.log('query wait area')
+    axios.post('/api/admin/alter/pile',{
+        pile_id: String(pile_id),
+        status: parseInt(status)
+    }).then(res => {
+        console.log(res.data)
+        if(res.data.status == 0){
+            console.log('操作成功');
+            start_query();
+        }else{
+            alert('操作失败: ' + res.data.message);
+            console.log('操作失败: ' + res.data.message);
+        }
+    }).catch(err => {
+        console.log(err);
+    })
+}
 
 const query_wait = () => {
     console.log('query wait area')
