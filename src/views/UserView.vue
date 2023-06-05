@@ -1,6 +1,6 @@
 <template>
-<v-container class="fill-height d-flex flex-column">
-    <v-card class="rounded-lg w-75 bg-grey-lighten-3">
+<v-container v-if="user != null" class="fill-height d-flex flex-column">
+    <v-card class="rounded-lg w-100 bg-grey-lighten-3">
         <v-card-title class="d-flex flex-row mt-2">
             <p class="text-h4 font-weight-black">HELLO, {{user}}</p>
             <p class="ml-auto text-overline font-weight-bold">{{time.year}}/{{time.month}}/{{time.day}} {{time.hour}}:{{time.minute}}</p>
@@ -15,7 +15,7 @@
 
     <!-- 充电请求 -->
     
-    <v-btn class="w-75 rounded-lg" color="green-lighten-1"
+    <v-btn class="w-100 rounded-lg" color="green-lighten-1"
         @click="dialog = true">
         <template v-if="current.length == 0">
             <p class="text-button font-weight-bold">CREATE TASK</p>
@@ -31,7 +31,7 @@
     <!-- 当前状态 -->
     
     <template v-if="current.length > 0" v-for="info in current">
-    <v-card class="rounded-lg w-75" variant="outlined">
+    <v-card class="rounded-lg w-100" variant="outlined">
         <v-card-title class="d-flex flex-row mt-2">
             <v-chip label class="mx-2" @click="info.status == -1 ? alter_mode(info) : ''">
                 <p class="text-overline font-weight-bold text-green">{{ info.mode == 1 ? "FAST" : "NORMAL" }} - {{ info.pile }}</p>
@@ -79,7 +79,7 @@
     </template>
     
     <!-- 历史记录 -->
-    <v-card class="rounded-lg w-75" color="grey-lighten-4">
+    <v-card class="rounded-lg w-100" color="grey-lighten-4">
         <v-card-title class="d-flex flex-row">
             <p class="text-subtitle-1 font-weight-bold">HISTORY</p>
             <v-btn class="ml-auto" color="grey" variant="text" 
@@ -265,6 +265,7 @@ const dialog_change = ref(false);
 const input_car_id = ref('');
 const input_amount = ref(0);
 
+
 const charge_request = () => {
     console.log('charging request');
     var car_id = String(input_car_id.value);
@@ -419,6 +420,7 @@ const query_profile = () => {
             }
         }else{
             alert('请求失败: ' + res.data.message);
+            quit();
         }
     }).catch(err => {
         console.log(err);
@@ -497,7 +499,9 @@ const query_detail = (info) => {
 }
 
 
-if (user == null) { router.push('/user/login'); }
+if (user == null) {
+    quit();
+}
 else{
     time_sync();
     query_request();

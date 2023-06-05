@@ -21,20 +21,20 @@
         </v-card-text>
         <v-card-actions>
             <v-btn class="mx-auto text-center elevation-1" rounded="lg" 
-                    prepend-icon="mdi-check-circle"
-                    @click="login">
-                <template v-slot:prepend>
-                    <v-icon color="success"></v-icon>
-                </template>
-                Login
-            </v-btn>
-            <v-btn class="mx-auto text-center elevation-1" rounded="lg" 
                     prepend-icon="mdi-account-plus"
                     @click="$router.push('/user/register')">
                 <template v-slot:prepend>
                     <v-icon color="success"></v-icon>
                 </template>
                 Register
+            </v-btn>
+            <v-btn class="mx-auto text-center elevation-1" rounded="lg" 
+                    prepend-icon="mdi-check-circle"
+                    @click="login">
+                <template v-slot:prepend>
+                    <v-icon color="success"></v-icon>
+                </template>
+                Login
             </v-btn>
         </v-card-actions>
     </v-card>

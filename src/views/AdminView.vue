@@ -1,5 +1,5 @@
 <template>
-<v-container class="fill-height d-flex flex-column">
+<v-container v-if="user != null" class="fill-height d-flex flex-column">
     <v-card class="rounded-lg w-100 bg-grey-lighten-3">
         <v-card-title class="d-flex flex-row mt-2">
             <p class="text-h4 font-weight-black">ADMIN PANEL</p>
@@ -8,6 +8,32 @@
         <v-card-text class="d-flex flex-row">
             <p class="text-button text-grey-darken-1 font-weight-bold">ACSS</p>
             <v-btn class="ml-auto" variant="text" density="compact" color="black" icon="mdi-exit-to-app" @click="quit"/>
+        </v-card-text>
+        <v-divider class="mx-6"></v-divider>
+        <v-card-text class="d-flex flex-column mr-5">
+            <div class="d-flex flex-row">
+                <p class="text-button text-black font-weight-bold ml-auto">charges</p>
+                <p class="text-button text-green font-weight-bold ml-3">{{ report.charge_times }}</p>
+            </div>
+            <div class="d-flex flex-row">
+                <p class="text-button text-black font-weight-bold ml-auto">charging time</p>
+                <p class="text-button text-red font-weight-bold ml-3">{{ report.total_duration }}</p>
+                <p class="text-overline text-grey-darken-1 font-weight-bold ml-1">H</p>
+                <p class="text-button text-black font-weight-bold ml-6">amount</p>
+                <p class="text-button text-green font-weight-bold ml-3">{{ report.total_amount }}</p>
+            </div>
+            <div class="d-flex flex-row">
+                </div>
+            <div class="d-flex flex-row">
+                <p class="text-button text-black font-weight-bold ml-auto">charge fee</p>
+                <p class="text-button text-grey-darken-1 font-weight-bold ml-3">{{ report.charge_fee }}</p>
+                <p class="text-button text-black font-weight-bold ml-3">+</p>
+                <p class="text-button text-black font-weight-bold ml-3">service fee</p>
+                <p class="text-button text-grey-darken-1 font-weight-bold ml-3">{{ report.service_fee }}</p>
+                <p class="text-button text-black font-weight-bold ml-3">=</p>
+                <p class="text-button text-black font-weight-bold ml-3">income</p>
+                <p class="text-button text-green font-weight-bold ml-3">{{ report.total_fee }}</p>
+            </div>
         </v-card-text>
     </v-card>
 
@@ -129,15 +155,39 @@ const status_color = {
     '2': 'text-blue'
 }
 
-const mode_str= {
-    '0':'NORMAL',
-    '1':'FAST'
+const report = reactive({
+    charge_times: 0,
+    service_fee:0.0,
+    charge_fee:0.0,
+    total_fee: 0.0,
+    total_amount:0.0,
+    total_duration:0.0
+})
+
+const update_report = () => {
+    console.log('update report')
+    axios.get('/api/admin/query/report', {
+        params:{
+            start:"",
+            end:""
+        }
+    }).then(res => {
+        console.log(res.data)
+        if(res.data.status == 0){
+            report.charge_times = res.data.data.count
+            report.service_fee = Number(res.data.data.service).toFixed(2)
+            report.charge_fee = Number(res.data.data.charge).toFixed(2)
+            report.total_fee = Number(res.data.data.total).toFixed(2)
+            report.total_amount = Number(res.data.data.amount).toFixed(2)
+            report.total_duration = Number(res.data.data.duration).toFixed(2)
+        }else{
+            console.log('请求失败: ' + res.data.message);
+        }
+    }).catch(err => {
+        console.log(err);
+    })
 }
 
-const mode_color={
-    '0':'text-red',
-    '1':'text-green'
-}
 
 const wait_list = reactive([])
 
@@ -268,11 +318,18 @@ const piles = [
 const start_query = () => {
     console.log('start query');
     query_wait();
+    update_report();
     for(var i in piles){
         piles[i].update();
     }
 }
-time_sync();
-start_query();
-query_timer = setInterval(start_query, 10 * 1000);
+
+if(user != null){
+    time_sync();
+    start_query();
+    query_timer = setInterval(start_query, 5 * 1000);
+}else{
+    quit();
+}
+ 
 </script>
