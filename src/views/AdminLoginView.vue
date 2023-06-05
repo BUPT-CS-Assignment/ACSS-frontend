@@ -2,7 +2,7 @@
 <v-container class="fill-height d-flex flex-column">
     <v-card width="50%" max-width="500px" min-width="200px" class="elevation-3 rounded-lg pb-6">
         <v-card-title>
-            <p class="text-h3 font-weight-black my-5">LOGIN</p>
+            <p class="text-h3 font-weight-black my-5">ADMIN LOGIN</p>
         </v-card-title>
         <v-card-text>
             <v-spacer class="my-4"></v-spacer>
