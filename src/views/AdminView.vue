@@ -201,7 +201,7 @@ class Task{
         this.car_id = input.car_id;
         this.status = input.status;
         this.start_time = input.start_time;
-        this.request_amount = input.all_amount;
+        this.request_amount = Number(input.all_amount).toFixed(2);
         this.charged_amount = Number(input.charged_amount).toFixed(2);
         this.remain = input.time_remain;
         if(this.remain >= 0){

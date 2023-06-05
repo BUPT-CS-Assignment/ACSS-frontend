@@ -477,7 +477,7 @@ const query_detail = (info) => {
             info.mode = res.data.data.mode;
             info.status = res.data.data.status;
             info.queuing = res.data.data.queuing;
-            info.request_amount = res.data.data.request_amount;
+            info.request_amount = Number(res.data.data.request_amount).toFixed(2);
             info.start_time = res.data.data.start_time;
             info.charged_amount = Number(res.data.data.charged_amount).toFixed(2);
             info.valid = true;
