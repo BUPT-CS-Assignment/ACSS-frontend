@@ -103,46 +103,60 @@
                         </template>
                         <template v-if="bill.valid">
                             <v-list-item class="mr-5">
-                                <div class="d-flex flex-row">
-                                    <v-chip label>
-                                        <p class="text-overline font-weight-bold" :class="mode_color[String(bill.detail.mode)]">
-                                            {{ mode_str[String(bill.detail.mode)] }} {{ bill.detail.pile }}
-                                        </p>
-                                    </v-chip>
-                                    <v-chip label variant="outlined" class="ml-6 text-overline font-weight-bold" color="orange-lighten-1">
-                                        {{ Number(bill.detail.amount).toFixed(2) }} kWh
-                                    </v-chip>
+                                <div class="d-flex flex-column">
+                                    <template v-for="detail in bill.detail">
+                                        <div class="d-flex flex-row mb-1">
+                                            <v-chip label>
+                                                <p class="text-overline font-weight-bold" :class="mode_color[String(detail.mode)]">
+                                                    {{ mode_str[String(detail.mode)] }} {{ detail.pile }}
+                                                </p>
+                                            </v-chip>
+                                            <v-chip label variant="outlined" class="ml-2 text-overline font-weight-bold" color="orange-lighten-1">
+                                                {{ Number(detail.amount).toFixed(2) }} kWh
+                                            </v-chip>
+                                            <v-chip label variant="outlined" class="ml-2 text-overline font-weight-bold" color="black">
+                                                {{ detail.start_time }} - {{ detail.end_time }}
+                                            </v-chip>
+                                            <!-- <div class="ml-auto d-flex flex-row text-overline font-weight-bold text-grey-darken-1">
+                                                <p class="text-black ml-auto">DURATION:</p>
+                                                <p class="ml-2">{{ Number(detail.duration).toFixed(2) }} HOURS</p>
+                                            </div> -->
+
+                                        </div>
+                                    </template>
+                                    
+                                    
                                 </div>
                             </v-list-item>
                             <v-list-item class="mr-5 ml-1">
                                 <div class="d-flex flex-row text-grey-darken-2 text-overline font-weight-bold">
-                                    <p class="text-black">START:</p>
-                                    <p class="ml-2">{{ bill.detail.start_time }}</p>
-                                </div>
-                            </v-list-item>
-                            <v-list-item class="mr-5 ml-1">
-                                <div class="d-flex flex-row text-grey-darken-2 text-overline font-weight-bold">
-                                    <p class="text-black">END:</p>
-                                    <p class="ml-2">{{ bill.detail.end_time }}</p>
+                                    <p class="text-black">CHARGE AMOUNT:</p>
+                                    <p class="ml-2">{{ Number(bill.amount).toFixed(2) }} kWh</p>
                                     <p class="text-black ml-auto">DURATION:</p>
-                                    <p class="ml-2">{{ Number(bill.detail.duration).toFixed(2) }} HOURS</p>
+                                    <p class="ml-2">{{ Number(bill.duration).toFixed(2) }} HOURS</p>
                                 </div>
                             </v-list-item>
                             <v-divider class="my-1 mx-6"></v-divider>
                             <v-list-item class="mr-10 my-3">
                                 <div class="d-flex flex-row text-grey-darken-2 text-overline font-weight-bold">
-                                    <p class="ml-auto text-black">CHARGE FEE:</p> 
-                                    <p class="ml-2">{{ Number(bill.cost.charge).toFixed(2) }}</p>   
+                                    <p class="ml-auto text-black mr-3">CHARGE FEE:</p> 
+                                    <p v-for="detail,index in bill.detail">{{ index == 0 ? '' : '+'}} {{Number(detail.charge).toFixed(2)}}</p>
+                                    <template v-if="bill.detail.length > 1">
+                                        <p class="ml-2"> = {{ Number(bill.charge).toFixed(2) }}</p>   
+                                    </template>
                                 </div>
                                 <div class="d-flex flex-row text-grey-darken-2 text-overline font-weight-bold">
                                     <p class="ml-auto text-subtitle-1 font-weight-bold text-black">+</p>
-                                    <p class="ml-4 text-black">SERVICE FEE:</p> 
-                                    <p class="ml-2">{{ Number(bill.cost.service).toFixed(2) }}</p>   
+                                    <p class="ml-6 text-black mr-3">SERVICE FEE:</p> 
+                                    <p v-for="detail,index in bill.detail">{{ index == 0 ? '' : '+'}} {{Number(detail.service).toFixed(2)}}</p>
+                                    <template v-if="bill.detail.length > 1">
+                                        <p class="ml-2"> = {{ Number(bill.service).toFixed(2) }}</p>   
+                                    </template>
                                 </div>
                                 <v-divider class="ml-auto w-50 border-opacity-100" color="black"></v-divider>
                                 <div class="d-flex flex-row text-grey-darken-2 text-button font-weight-bold">
                                     <p class="ml-auto text-black">TOTAL:</p> 
-                                    <p class="ml-2">{{ Number(bill.cost.total).toFixed(2) }}</p>   
+                                    <p class="ml-2">{{ Number(bill.total).toFixed(2) }}</p>   
                                 </div>
                             </v-list-item>
                         </template>
@@ -379,11 +393,23 @@ const query_bill = (bill)=>{
     }).then(res => {
         console.log(res.data)
         if(res.data.status == 0){
-            bill.date = res.data.data.date;
             bill.car = res.data.data.car;
-            bill.status = res.data.data.status;
-            bill.detail = res.data.data.detail;
-            bill.cost = res.data.data.cost;
+            bill.date = res.data.data.detail[0].date;
+            bill.detail = reactive(res.data.data.detail);
+            bill.service = 0.0;
+            bill.charge = 0.0;
+            bill.total = 0.0;
+            bill.amount = 0.0;
+            bill.duration = 0.0;
+            res.data.data.detail.forEach((item,inde) => {
+                bill.service += item.service;
+                bill.charge += item.charge;
+                bill.total += item.total;
+                bill.amount += item.amount;
+                bill.duration += item.duration;
+            });
+            bill.start_time = res.data.data.detail[0].start_time
+            bill.end_time = res.data.data.detail[res.data.data.detail.length - 1].end_time
             bill.valid = true;
         }else{
             bill.valid = false;
