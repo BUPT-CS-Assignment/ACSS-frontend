@@ -97,6 +97,9 @@
                             v-bind="props">
                             <v-card-title class="d-flex flex-row" @click="query_bill(bill)">
                                 <p class="text-overline font-weight-bold">{{ bill.car }}</p>
+                                <v-chip label density="compact" class="ml-4 text-overline font-weight-bold" :color="bill.status == 2 ? 'green' : 'grey-darken-1'">
+                                    {{ bill.status == 2 ? 'FINISHED' : 'CANCELED' }}
+                                </v-chip>
                                 <p class="text-overline font-weight-bold text-grey-darken-2 ml-auto"> {{ bill.date }}</p>
                             </v-card-title>
                             </v-list-item>
@@ -394,7 +397,6 @@ const query_bill = (bill)=>{
         console.log(res.data)
         if(res.data.status == 0){
             bill.car = res.data.data.car;
-            bill.date = res.data.data.detail[0].date;
             bill.detail = reactive(res.data.data.detail);
             bill.service = 0.0;
             bill.charge = 0.0;
@@ -441,6 +443,7 @@ const query_profile = () => {
                     bill_id: bills[index].id,
                     date: bills[index].date,
                     car:bills[index].car,
+                    status:bills[index].status,
                     valid: false,
                 }))
             }
